@@ -1,21 +1,24 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "dist/main.js",
-      "use": "@vercel/node",
-      "config": {
-        "prisma": {
-          "ignore": ["node_modules", ".git"],
-          "command": "npx prisma migrate deploy"
+    "version": 2,
+    "env": {
+      "DATABASE_URL":"postgresql://postgres.vtevlwbgquoxtupywdov:X3XEMBRjKcjUSp16@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?schema=public"
+    },
+    "builds": [
+        {
+            "src": "src/main.ts",
+            "use": "@vercel/node"
         }
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "dist/main.js"
-    }
-  ]
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "src/main.ts",
+            "methods": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ]
+        }
+    ]
 }
