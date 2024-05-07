@@ -3,7 +3,13 @@
   "builds": [
     {
       "src": "dist/main.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "prisma": {
+          "ignore": ["node_modules", ".git"],
+          "command": "npx prisma migrate deploy"
+        }
+      }
     }
   ],
   "routes": [
