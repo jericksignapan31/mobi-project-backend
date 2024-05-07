@@ -1,0 +1,223 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id           String           @id @unique @default(cuid())
+  username     String           @unique
+  password     String?
+  userType     String?
+  date_created DateTime         @default(now())
+  date_updated DateTime?
+  archived     Boolean          @default(true)
+  isPasswordChanged Boolean      @default(false)
+  employee     employeedetails?
+  otRequest    otRequestTable[]
+}
+
+model employeedetails {
+  empId               String            @id @unique
+  user                user              @relation(fields: [user_id], references: [id])
+  user_id             String            @unique
+  civil_status        String?
+  department          department?       @relation(fields: [department_id], references: [id])
+  department_id       Int?
+  positionFK          position          @relation(fields: [position_id], references: [position_id])
+  position_id         Int
+  remarks             String
+  first_name          String
+  middle_name         String
+  last_name           String
+  email               String
+  contact_number      String
+  gender              String
+  birthdate           DateTime
+  address             String
+  basic_pay           String
+  archived            Boolean           @default(false)
+  date_hired          DateTime?
+  date_created        DateTime          @default(now())
+  date_regularization DateTime?
+  date_resigned       DateTime?
+  date_updated        DateTime?
+  profile_picture     String?
+  document            documents[]
+  certificate         certificate[]
+  education           education[]
+  skills              skills[]
+  work_experience     work_experience[]
+  training            training[]
+  leave_request       leave_request[]
+  attendancelog       attendancelog[]
+  otRequestTable      otRequestTable[]
+}
+
+model todo {
+  id        Int       @id @default(autoincrement())
+  title     String
+  done      Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+}
+
+model department {
+  id           Int               @id @default(autoincrement())
+  employee     employeedetails[]
+  name         String
+  description  String?
+  date_created DateTime          @default(now())
+  date_updated DateTime?
+  archived     Boolean           @default(false)
+}
+
+model position {
+  position_id   Int               @id @default(autoincrement())
+  position_name String
+  date_created  DateTime          @default(now())
+  date_updated  DateTime?
+  archived      Boolean           @default(false)
+  employee      employeedetails[]
+}
+
+model leave_request_type {
+  leave_type_id   Int             @id @default(autoincrement())
+  leave_type_name String
+  description     String?
+  date_created    DateTime        @default(now())
+  date_updated    DateTime?
+  archived        Boolean         @default(false)
+  leave_request   leave_request[]
+}
+
+model leave_request {
+  leave_request_id Int                @id @default(autoincrement())
+  employee         employeedetails    @relation(fields: [emp_id], references: [empId])
+  emp_id           String             
+  leave_type       leave_request_type @relation(fields: [leave_type_id], references: [leave_type_id])
+  leave_type_id    Int
+  date_created     DateTime           @default(now())
+  date_start       DateTime
+  date_end         DateTime
+  reason           String
+  status           String
+  date_updated     DateTime?
+  support_file     String?
+  with_pay         Boolean?
+  sum_leavedate    Int?
+}
+
+model documents {
+  document_id   Int             @id @default(autoincrement())
+  document_name String
+  file_link     String
+  doc_gov_id    String?
+  status        String?
+  date_created  DateTime        @default(now())
+  date_updated  DateTime?
+  employee      employeedetails @relation(fields: [emp_id], references: [empId])
+  emp_id        String          
+}
+
+model certificate {
+  certificate_id   Int             @id @default(autoincrement())
+  certificate_name String
+  certificate_link String
+  date_created     DateTime        @default(now())
+  date_updated     DateTime?
+  employee         employeedetails @relation(fields: [emp_id], references: [empId])
+  emp_id           String @unique
+}
+
+model education {
+  education_id   Int              @id @default(autoincrement())
+  school_name    String
+  level          String
+  degree         String
+  year_graduated String
+  date_created   DateTime         @default(now())
+  date_updated   DateTime?
+  unit_earned    String?
+  honor_recieved String?
+  employee       employeedetails? @relation(fields: [emp_id], references: [empId])
+  emp_id         String
+}
+
+
+
+model skills {
+  skill_id   Int             @id @default(autoincrement())
+  skill_name String
+  employee   employeedetails @relation(fields: [emp_id], references: [empId])
+  emp_id     String          
+}
+
+model work_experience {
+  work_experience_id Int              @id @default(autoincrement())
+  company_name       String?
+  position           String?
+  date_started       DateTime?
+  date_ended         DateTime?
+  monthly_salary     String?
+  goverment_service  String?
+  status_appointment String?
+  date_created       DateTime         @default(now())
+  date_updated       DateTime?
+  file_link         String?
+  employee           employeedetails? @relation(fields: [emp_id], references: [empId])
+  emp_id             String
+}
+
+model training {
+  title_id      Int              @id @default(autoincrement())
+  title         String
+  date_start    DateTime?
+  date_end      DateTime?
+  no_of_hours   String?
+  type_of_ld    String?
+  conducted_by  String?
+  date_created  DateTime         @default(now())
+  date_updated  DateTime?
+  employee      employeedetails? @relation(fields: [emp_id], references: [empId])
+  emp_id        String  
+  document_link String?
+}
+
+model attendancelog{
+  id           String       @id @default(uuid())
+  employeeId       String
+  employee     employeedetails @relation(fields: [employeeId], references: [empId])
+  attendanceDate DateTime?
+  timeIn1     String?
+  timeOut1     String?
+  timeIn2     String?
+  timeOut2     String?
+  totalHours String?
+}
+
+model otRequestTable {
+  id           String       @id @default(uuid())
+  batch_id     String
+  empId       String
+  employee     employeedetails @relation(fields: [empId], references: [empId])
+  accountId    String?
+  accountFrom  user? @relation(fields: [accountId], references: [id])
+  forman      String?
+  otDate DateTime?
+  timeIn     String?
+  timeOut     String?
+  totalHours String?
+  status String?
+  date_created DateTime @default(now())
+  date_updated DateTime?
+}
